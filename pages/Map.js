@@ -9,6 +9,10 @@ import {
 } from 'react-native';
 import MapView, { Marker, Polygon } from 'react-native-maps';
 import RandomColor from 'randomcolor';
+import * as FileSystem from "expo-file-system";
+import tokml from "geojson-to-kml";
+// import * as RNFS from 'react-native-fs';
+
 
 function Map() {
 
@@ -22,8 +26,13 @@ function Map() {
       const [points, setPoints] = useState([]);
     
       const [polygons, setPolygons] = useState([]);
+
+      const [geoCoord, setGeoCoord] = useState([]);
     
       const addPoint = (event) => {
+        if(polygons.length>1){
+
+        }
         const coordinate = event.nativeEvent.coordinate;
         setPoints([...points, coordinate]);
         console.log(`Latitude: ${coordinate.latitude}, Longitude: ${coordinate.longitude}`);
@@ -37,9 +46,10 @@ function Map() {
         if (points.length > 2) {
           const polygonColor = RandomColor({ luminosity: 'light' , format : 'rgba', alpha : '0.5' });
           setPolygons([...polygons, { coordinates: points, fillColor: polygonColor }]);
+          geoJsonData();
           setPoints([]);
-          console.log()
         }
+        
       };
     
       const renderPolygons = () => {
@@ -47,7 +57,66 @@ function Map() {
           <Polygon key={index} coordinates={polygon.coordinates} fillColor={polygon.fillColor} />
         ));
       };
-    
+
+      async function geoJsonData(){
+
+        polygons.forEach(polygon=>{
+          geoCoord.push({ "type": "Feature",
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": polygon.coordinates,
+            },
+            "properties": {
+              "prop0": "value0",
+              "prop1": {"this": "that"}
+              }
+            }
+          )}
+        )
+
+        const geodata = 
+        { "type": "FeatureCollection",
+          "features": geoCoord
+        }
+        // var obj = Object.fromEntries(data);
+        var jsonString = JSON.stringify(geodata);
+
+        // var RNFS = require('react-native-fs');
+        // console.log(RNFS.writ);
+        var pathgeo = `${FileSystem.documentDirectory}data.geojson`;
+        var pathkml = `${FileSystem.documentDirectory}data.kml`;
+        var mainuri = `${FileSystem.documentDirectory}data2.kml`;
+        console.log(pathkml);
+        // path.createWriteable();
+        try{
+          const kmldata = tokml(geodata);
+          await FileSystem.writeAsStringAsync(pathkml, kmldata);
+          const kd = await FileSystem.readAsStringAsync(pathkml);
+          const downloadedFile = await FileSystem.downloadAsync(pathkml, mainuri);
+          console.log(downloadedFile);
+        }
+        catch(error){
+          console.log(error);
+          // console.log("Error occured in saving kml?");
+        }
+        
+        // RNFS.write(path, data)
+        // .then((success) => {
+        // console.log('FILE WRITTEN!');
+        // })
+        // .catch((err) => {
+        // console.log(err.message);
+        // });
+        
+        
+        // FileSystem.readAsStringAsync()
+        // console.log(kml);
+        // var geojson2kml = require('geojson2kml');
+        // geojson2kml(pathgeo, "./data.kml", function(err){
+        //   if(err){console.log(err);}
+        // });
+      };
+
   return (
     <SafeAreaView style={styles.safeArea}>
     <View style={styles.container}>

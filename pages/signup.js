@@ -1,39 +1,38 @@
 import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, TouchableOpacity, Text, SafeAreaView, Alert, Image } from 'react-native';
-import { useFonts } from 'expo-font';
+import { View, TextInput, StyleSheet, TouchableOpacity, Text, SafeAreaView, Alert } from 'react-native';
 
-const Login = ({navigation}) => {
+const SignUp = ({navigation}) => {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
-  const [loaded] = useFonts({
-    Ubuntu: require('./assets/fonts/Ubuntu/Ubuntu-Medium.ttf'),
-  });
+  const handleSignUp = () => {
+    Alert.alert('Sign Up Successful');
+    navigation.navigate('Login');
+  };
 
-  const handleLogin = () => {
-    Alert.alert('Login Successful');
-    navigation.navigate('Home');
+  const goback = () =>{
+    navigation.navigate('Login');
   };
 
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
   };
 
-  const handleSignUp = () => {
-    navigation.navigate('Signup');
-  };
-
-  
-
-
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <Image style={styles.backImage} 
-          source={{url: "https://developers.google.com/location-context/geofencing"}} />
         <View style={styles.card}>
-        <Text style={styles.title}>Geo-Fencing</Text>
+        <Text style={styles.title}>Sign Up</Text>
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Name"
+            onChangeText={(text) => setName(text)}
+            value={name}
+          />
+        </View>
         <View style={styles.passwordContainer}>
           <TextInput
             style={styles.input}
@@ -57,11 +56,11 @@ const Login = ({navigation}) => {
             </Text>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Login</Text>
+        <TouchableOpacity style={styles.button} onPress={handleSignUp}>
+          <Text style={styles.buttonText}>Sign Up</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
-          <Text style={styles.signUpButtonText}>Sign Up</Text>
+        <TouchableOpacity style={styles.loginButton}>
+          <Text style={styles.loginButtonText} onPress={goback}>Already have an account? Log in</Text>
         </TouchableOpacity>
         </View>
       </View>
@@ -78,6 +77,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    // backgroundColor: 'rgb(255, 132, 132)',
   },
   backImage: {
     position: "absolute", 
@@ -139,13 +139,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  signUpButton: {
+  loginButton: {
     marginTop: 10,
   },
-  signUpButtonText: {
+  loginButtonText: {
     color: '#8080FF',
     fontWeight: 'bold',
   },
 });
 
-export default Login;
+export default SignUp;
